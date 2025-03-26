@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:13.5
+    restart: always
+    environment:
+      - POSTGRES_USER=autofix_db
+      - POSTGRES_PASSWORD=Autofix$2025@
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+
+volumes:
+  postgres:
