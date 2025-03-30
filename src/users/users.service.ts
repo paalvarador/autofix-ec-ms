@@ -58,7 +58,7 @@ export class UsersService {
 
   async findAll() {
     try {
-      return await this.prisma.user.findMany({
+      const users = await this.prisma.user.findMany({
         select: {
           id: true,
           firstName: true,
@@ -70,7 +70,18 @@ export class UsersService {
           updatedAt: true,
         },
       });
+
+      return users;
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `Database error: ${error.message}`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

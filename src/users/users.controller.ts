@@ -13,6 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -38,8 +39,7 @@ export class UsersController {
       },
     },
   })
-  @ApiResponse({
-    status: 400,
+  @ApiNotFoundResponse({
     description: 'Bad request - Missing or invalid fields',
     schema: {
       example: {
@@ -59,13 +59,42 @@ export class UsersController {
     },
   })
   async create(@Body() createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @ApiCreatedResponse({ type: UserEntity, isArray: true })
-  @UseInterceptors(ExcludePasswordInterceptor)
-  findAll() {
+  @ApiOperation({ summary: 'Find a list of users' })
+  @ApiCreatedResponse({
+    description: 'Users found successfully',
+    schema: {
+      example: {
+        message: 'Users found successfully',
+        user: [
+          {
+            id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            email: 'jane.doe@email.com',
+            phone: '0987817811',
+            role: 'CUSTOMER',
+            createdAt: '2025-03-29T06:39:31.161Z',
+            updatedAt: '2025-03-29T06:39:31.161Z',
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
+  async findAll() {
     return this.usersService.findAll();
   }
 
@@ -89,8 +118,7 @@ export class UsersController {
       },
     },
   })
-  @ApiResponse({
-    status: 404,
+  @ApiNotFoundResponse({
     description: 'User not found',
     schema: {
       example: {
@@ -105,12 +133,12 @@ export class UsersController {
     schema: {
       example: {
         statusCode: 500,
-        message: 'Something wen wrong, please try again later',
+        message: 'Something went wrong, please try again later',
       },
     },
   })
   async findOne(@Param('id') id: string) {
-    return await this.usersService.findOne(id);
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
