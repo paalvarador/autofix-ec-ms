@@ -149,10 +149,63 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-    });
+    try {
+      // Verificar si el usuario existe
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            message: `User wit ID ${id} not found`,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      // Realizamos la actualización
+      const updatedUser = await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      // Si el error ya es un HttpException, lo relanzamos sin modificarlo
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `User with this email already exists`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An unexpected error ocurred. Please try again later.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async remove(id: string) {

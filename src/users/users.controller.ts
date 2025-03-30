@@ -142,8 +142,44 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @ApiCreatedResponse({ type: UserEntity })
-  @UseInterceptors(ExcludePasswordInterceptor)
+  @ApiOperation({ summary: 'Update a user by Id ' })
+  @ApiCreatedResponse({
+    description: 'User updated successfully',
+    schema: {
+      example: {
+        message: 'User updated successfully',
+        user: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          email: 'jane.doe@email.com',
+          phone: '0987817811',
+          role: 'CUSTOMER',
+          createdAt: '2025-03-29T06:39:31.161Z',
+          updatedAt: '2025-03-29T06:39:31.161Z',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User with ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
