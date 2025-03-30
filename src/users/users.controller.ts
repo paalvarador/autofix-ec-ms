@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,9 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
-import { ExcludePasswordInterceptor } from 'src/exclude-password-interceptor/exclude-password-interceptor.interceptor';
-
 @Controller('users')
 @ApiTags('users')
 export class UsersController {
@@ -185,8 +181,37 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @ApiCreatedResponse({ type: UserEntity })
-  @UseInterceptors(ExcludePasswordInterceptor)
+  @ApiOperation({ summary: 'Delete a user by Id' })
+  @ApiCreatedResponse({
+    description: 'User deleted successfully',
+    schema: {
+      example: {
+        message: 'User deleted successfully',
+        user: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: `User with ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found`,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

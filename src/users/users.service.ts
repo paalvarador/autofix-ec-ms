@@ -209,6 +209,51 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    return await this.prisma.user.delete({ where: { id } });
+    try {
+      // Intentamos eliminar al usuario
+      const user = await this.prisma.user.delete({
+        where: { id },
+        select: {
+          id: true,
+        },
+      });
+
+      // Si no se encuentra el usuario, se lanza un error 404
+      if (!user) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            message: `User with ID ${id} not found`,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return { message: 'User deleted successfully', ...user };
+    } catch (error) {
+      // Si el error ya es un HttpException, lo relanzamos sin modificarlo
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `Database error: ${error.message}`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Manejo general para cualquier otro error inesperado
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An unexpected error occurred, please try again',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
