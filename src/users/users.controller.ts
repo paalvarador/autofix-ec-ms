@@ -59,7 +59,7 @@ export class UsersController {
     },
   })
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -70,10 +70,47 @@ export class UsersController {
   }
 
   @Get(':id')
-  @ApiCreatedResponse({ type: UserEntity })
-  @UseInterceptors(ExcludePasswordInterceptor)
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @ApiOperation({ summary: 'Find a user by id' })
+  @ApiCreatedResponse({
+    description: 'User found successfully',
+    schema: {
+      example: {
+        message: 'User found successfully',
+        user: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          email: 'jane.doe@email.com',
+          phone: '0987817811',
+          role: 'CUSTOMER',
+          createdAt: '2025-03-29T06:39:31.161Z',
+          updatedAt: '2025-03-29T06:39:31.161Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User wit ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something wen wrong, please try again later',
+      },
+    },
+  })
+  async findOne(@Param('id') id: string) {
+    return await this.usersService.findOne(id);
   }
 
   @Patch(':id')

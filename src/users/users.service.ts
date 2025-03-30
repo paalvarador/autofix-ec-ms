@@ -49,7 +49,7 @@ export class UsersService {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'An unexpected error ocCurred.',
+          message: 'An unexpected error occurred.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -57,20 +57,84 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.prisma.user.findMany();
+    try {
+      return await this.prisma.user.findMany({
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: `An unexpected error occurred: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findOne(id: string) {
-    return await this.prisma.user.findFirst({
-      where: { id },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        phone: true,
-      },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!user) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            message: `User with ID ${id} not found`,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return user;
+    } catch (error) {
+      // Si el error ya es un HttpException, lo relanzamos sin modificarlo
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      console.error('Unexpected error in findOne: ', error);
+
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `Database error: ${error.message}`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Manejo general para cualquier otro error inesperado
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An unexpected error occurred, please try again',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
