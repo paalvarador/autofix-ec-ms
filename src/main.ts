@@ -9,6 +9,14 @@ async function bootstrap() {
     .setTitle('AutoFixEc API')
     .setDescription('This is the API for AutoFixEC')
     .setVersion('0.1.0')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      in: 'header',
+      name: 'Autorización',
+      description: 'Ingrese el Bearer Token',
+    })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
