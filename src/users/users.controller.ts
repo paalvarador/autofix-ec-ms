@@ -57,7 +57,11 @@ export class UsersController {
     },
   })
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    const user = await this.usersService.create(createUserDto)
+    return {
+      message: 'User created successfully',
+      user,
+    };
   }
 
   @Get()
