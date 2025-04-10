@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
 }
 
 datasource db {
@@ -21,14 +16,14 @@ model User {
   phone        String?
   password     String
   role         Role
-  workshops    Workshop[]     @relation("UserWorkshop")
-  quotations   Quotation[]
-  appointments Appointment[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  appointments Appointment[]
+  Notification Notification[]
+  quotations   Quotation[]
   Vehicle      Vehicle[]
   WorkOrder    WorkOrder[]
-  Notification Notification[]
+  workshops    Workshop[]     @relation("UserWorkshop")
 }
 
 model Workshop {
@@ -37,13 +32,15 @@ model Workshop {
   address      String
   phone        String?
   email        String        @unique
-  owner        User          @relation("UserWorkshop", fields: [ownerId], references: [id])
   ownerId      String
-  quotations   Quotation[]
-  workOrders   WorkOrder[]
-  appointments Appointment[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+  LaborTask    LaborTask[]
+  Part         Part[]
+  quotations   Quotation[]
+  workOrders   WorkOrder[]
+  owner        User          @relation("UserWorkshop", fields: [ownerId], references: [id])
 }
 
 model Vehicle {
@@ -52,73 +49,103 @@ model Vehicle {
   model        String
   year         Int
   licensePlate String      @unique
-  owner        User        @relation(fields: [ownerId], references: [id])
   ownerId      String
-  quotations   Quotation[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+  quotations   Quotation[]
+  owner        User        @relation(fields: [ownerId], references: [id])
 }
 
 model Quotation {
   id            String          @id @default(uuid())
-  customer      User            @relation(fields: [customerId], references: [id])
   customerId    String
-  workshop      Workshop        @relation(fields: [workshopId], references: [id])
   workshopId    String
-  vehicle       Vehicle         @relation(fields: [vehicleId], references: [id])
   vehicleId     String
-  items         QuotationItem[]
   status        QuotationStatus @default(PENDING)
   total         Float
-  estimatedTime Int // In days
-  workOrder     WorkOrder?
+  estimatedTime Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  customer      User            @relation(fields: [customerId], references: [id])
+  vehicle       Vehicle         @relation(fields: [vehicleId], references: [id])
+  workshop      Workshop        @relation(fields: [workshopId], references: [id])
+  items         QuotationItem[]
+  workOrder     WorkOrder?
 }
 
 model QuotationItem {
-  id          String    @id @default(uuid())
-  quotation   Quotation @relation(fields: [quotationId], references: [id])
+  id          String     @id @default(uuid())
   quotationId String
   description String
   type        ItemType
   price       Float
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime   @default(now())
+  laborTaskId String?
+  partId      String
+  laborTask   LaborTask? @relation(fields: [laborTaskId], references: [id])
+  part        Part       @relation(fields: [partId], references: [id])
+  quotation   Quotation  @relation(fields: [quotationId], references: [id])
 }
 
 model WorkOrder {
   id          String          @id @default(uuid())
-  quotation   Quotation       @relation(fields: [quotationId], references: [id])
   quotationId String          @unique
-  workshop    Workshop        @relation(fields: [workshopId], references: [id])
   workshopId  String
-  customer    User            @relation(fields: [customerId], references: [id])
   customerId  String
   status      WorkOrderStatus @default(IN_PROGRESS)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+  customer    User            @relation(fields: [customerId], references: [id])
+  quotation   Quotation       @relation(fields: [quotationId], references: [id])
+  workshop    Workshop        @relation(fields: [workshopId], references: [id])
 }
 
 model Appointment {
   id         String            @id @default(uuid())
-  customer   User              @relation(fields: [customerId], references: [id])
   customerId String
-  workshop   Workshop          @relation(fields: [workshopId], references: [id])
   workshopId String
   date       DateTime
   status     AppointmentStatus @default(PENDING)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
+  customer   User              @relation(fields: [customerId], references: [id])
+  workshop   Workshop          @relation(fields: [workshopId], references: [id])
 }
 
 model Notification {
   id        String           @id @default(uuid())
-  user      User             @relation(fields: [userId], references: [id])
   userId    String
   message   String
   type      NotificationType
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id])
+}
+
+model Part {
+  id            String          @id @default(uuid())
+  name          String
+  description   String?
+  price         Float
+  stock         Int             @default(0)
+  workshopId    String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  workshop      Workshop        @relation(fields: [workshopId], references: [id])
+  QuotationItem QuotationItem[]
+}
+
+model LaborTask {
+  id             String          @id @default(uuid())
+  name           String
+  description    String?
+  hourlyRate     Float
+  estimatedHours Int
+  workshopId     String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  workshop       Workshop        @relation(fields: [workshopId], references: [id])
+  QuotationItem  QuotationItem[]
 }
 
 enum Role {
