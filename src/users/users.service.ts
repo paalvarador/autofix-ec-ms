@@ -20,7 +20,7 @@ export class UsersService {
         },
       });
 
-      if(existingUser){
+      if (existingUser) {
         throw new HttpException(
           {
             statusCode: HttpStatus.CONFLICT,
