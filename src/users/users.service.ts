@@ -20,7 +20,10 @@ export class UsersService {
         },
       });
 
+      console.log(`existingUser ${JSON.stringify(existingUser)}`);
+
       if (existingUser) {
+        console.log(`Entra en el if del usuario existe`);
         throw new HttpException(
           {
             statusCode: HttpStatus.CONFLICT,
@@ -37,6 +40,11 @@ export class UsersService {
 
       return newUser;
     } catch (error) {
+      console.log(`entra en el catch con el siguiente error: ${error}`);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       if (error instanceof PrismaClientValidationError) {
         throw new HttpException(
           {
