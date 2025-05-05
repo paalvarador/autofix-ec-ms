@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import * as bcrypt from 'bcrypt';
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
@@ -33,8 +33,18 @@ export class UsersService {
         );
       }
 
+      const { password, ...rest } = createUserDto;
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(
+        createUserDto.password,
+        saltRounds,
+      );
+
       const newUser = await this.prisma.user.create({
-        data: createUserDto,
+        data: {
+          ...rest,
+          password: hashedPassword,
+        },
         select: { id: true },
       });
 
