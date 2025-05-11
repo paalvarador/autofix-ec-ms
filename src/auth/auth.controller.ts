@@ -11,13 +11,9 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
-import * as process from 'node:process';
 
-interface JwtPayload {
-  role: string;
-  email: string;
-  exp: number;
+interface RequestWithCookies extends Request {
+  cookies: Record<string, string>;
 }
 
 @Controller('auth')
@@ -30,8 +26,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const userToken = await this.authService.loginUser(data, res);
-
-    console.log(`userToken: ${JSON.stringify(userToken)}`);
+    console.log(`userToken: ${userToken?.token}`);
 
     if (!userToken) {
       throw new HttpException(
@@ -43,33 +38,39 @@ export class AuthController {
       );
     }
 
-    return { message: 'Login successfull' };
+    return res.status(200).json({ message: 'Login successfull' });
   }
 
   @Get('me')
-  async me(@Req() req: Request, @Res() res: Response) {
-    console.log(`req.cookies: ${JSON.stringify(req.cookies)}`);
-    const token: string | undefined = await req.cookies['token'];
+  me(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies['authToken'];
+
+    console.log(`valor del token es igual a: ${token}`);
+
+    console.log(`Por que llamo al me despues de loguearme`);
 
     console.log(`token: ${token}`);
 
-    if (!token) return res.status(401).json({ message: 'No token' });
-
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET is not defined');
-    }
+    if (!token) return res.status(401).json({ message: 'No token provided' });
 
     try {
-      const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
-
-      return res.status(200).json({
-        role: decoded.role,
-        email: decoded.email,
-        exp: decoded.exp,
-      });
+      const userData = this.authService.decodeToken(token);
+      return res.status(200).json(userData);
     } catch (err) {
+      console.log('Invalid or expired token', err);
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
+  }
+
+  @Post('/logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('authToken');
+
+    return res.status(200).json({
+      message: 'Logout successfull',
+    });
   }
 }
