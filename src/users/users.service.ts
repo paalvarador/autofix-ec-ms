@@ -7,10 +7,17 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
+import { GrowthBook } from '@growthbook/growthbook';
+import { GrowthbookService } from 'src/growthbook/growthbook.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  private gb: GrowthBook;
+
+  constructor(
+    private readonly growthbookService: GrowthbookService,
+    private prisma: PrismaService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -94,6 +101,11 @@ export class UsersService {
 
   async findAll() {
     try {
+      const growthbook = this.growthbookService.getGrowthBookInstance();
+      const isEnabled = growthbook.getFeatureValue('customer-only', false);
+
+      console.log(`La feature 'customer-only' esta en valor: ${isEnabled}`);
+
       const users = await this.prisma.user.findMany({
         select: {
           id: true,
@@ -104,6 +116,9 @@ export class UsersService {
           role: true,
           createdAt: true,
           updatedAt: true,
+        },
+        where: {
+          role: isEnabled ? 'CUSTOMER' : 'WORKSHOP',
         },
       });
 
