@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule} from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { CatalogModule } from './catalog/catalog.module';
 import { QuotationsModule } from './quotations/quotations.module';
-import { QuotationsModule } from './quotations/quotations.module';
+import { GrowthbookService } from './growthbook/growthbook.service';
 
 @Module({
   imports: [
@@ -13,8 +14,9 @@ import { QuotationsModule } from './quotations/quotations.module';
     PrismaModule,
     AuthModule,
     QuotationsModule,
+    CatalogModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [GrowthbookService],
 })
 export class AppModule {}
