@@ -17,12 +17,13 @@ export class GrowthbookService implements OnModuleInit {
   async onModuleInit() {
     try {
       await this.gb.init();
+      /*
       this.refreshInterval = setInterval(() => {
         // You can put any periodic refresh logic here, e.g., re-fetch features
         // For now, just logging for demonstration
         this.gb.refreshFeatures();
         this.logger.log('Refreshing GrowthBook features...');
-      }, 1000);
+      }, 1000);*/
     } catch (error) {
       console.error(`Error loading features: ${error}`);
     }

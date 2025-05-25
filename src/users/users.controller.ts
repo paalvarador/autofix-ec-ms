@@ -23,7 +23,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 @ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiCreatedResponse({

@@ -18,6 +18,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     console.log(`payload.email: ${payload.email}`);
     console.log(`payload.role: ${payload.role}`);
 
+    console.log(`secretOrKey: ${this.configService.get<string>('JWT_SECRET')}`);
+
     return {
       userId: payload.id,
       email: payload.email,

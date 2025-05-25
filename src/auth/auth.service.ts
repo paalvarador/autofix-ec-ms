@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Response } from 'express';
 import * as process from 'node:process';
 import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
 
 interface JwtPayload {
   role: string;
@@ -21,6 +22,7 @@ export class AuthService {
 
   async loginUser(user: LoginDto, response: Response) {
     const userToken = await this.validateUser(user);
+    console.log(`userToken: ${userToken}`);
     if (!userToken) return null;
 
     response.cookie('authToken', userToken, {
@@ -39,15 +41,23 @@ export class AuthService {
       where: { email: user.email },
     });
 
+    console.log(`foundUser: ${JSON.stringify(foundUser)}`);
+
     if (!foundUser) return null;
 
-    if (foundUser.password === user.password) {
-      return this.jwtService.sign({
-        id: foundUser.id,
-        email: foundUser.email,
-        role: foundUser.role,
-      });
-    }
+    const isPasswordValid = await bcrypt.compare(
+      user.password,
+      foundUser.password,
+    );
+
+    console.log(`isPasswordValid: ${isPasswordValid}`);
+    if (!isPasswordValid) return null;
+
+    return this.jwtService.sign({
+      id: foundUser.id,
+      email: foundUser.email,
+      role: foundUser.role,
+    });
   }
 
   decodeToken(token: string): { role: string; email: string; exp: number } {

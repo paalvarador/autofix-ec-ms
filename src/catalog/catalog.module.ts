@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CatalogService } from './catalog.service';
-import { CatalogController } from './catalog.controller';
+import { VehicleBrandController } from './vehicle-brand.controller';
+import { VehicleModelController } from './vehicle-model.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { VehicleBrandService } from './vehicle-brand.service';
+import { VehicleModelService } from './vehicle-model.service';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [CatalogController],
-  providers: [CatalogService],
+  controllers: [VehicleBrandController, VehicleModelController],
+  providers: [VehicleBrandService, VehicleModelService],
 })
 export class CatalogModule {}
