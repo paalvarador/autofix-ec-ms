@@ -31,7 +31,7 @@ export class VehicleModelService {
         },
       });
 
-      console.log(`existingModel: ${existingModel}`);
+      console.log(`existingModel: ${JSON.stringify(existingModel)}`);
 
       if (existingModel) {
         throw new ConflictException(

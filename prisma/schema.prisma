@@ -8,72 +8,101 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  firstName    String
-  lastName     String
-  email        String         @unique
-  phone        String?
-  password     String
-  role         Role
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  appointments Appointment[]
-  Notification Notification[]
-  quotations   Quotation[]
-  Vehicle      Vehicle[]
-  WorkOrder    WorkOrder[]
-  workshops    Workshop[]     @relation("UserWorkshop")
+  id               String             @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String             @unique
+  phone            String?
+  password         String
+  role             UserRole
+  workshopId       String?
+  createdAt        DateTime           @default(now())
+  createdBy        String             @default("admin")
+  updatedAt        DateTime           @updatedAt
+  updatedBy        String             @default("admin")
+  appointments     Appointment[]
+  Notification     Notification[]
+  quotations       Quotation[]
+  Vehicle          Vehicle[]
+  WorkOrder        WorkOrder[]
+  workshopsId      String?
+  Workshop         Workshop?          @relation(fields: [workshopId], references: [id])
+  QuotationRequest QuotationRequest[]
 }
 
 model Workshop {
-  id           String        @id @default(uuid())
-  name         String
-  address      String
-  phone        String?
-  email        String        @unique
-  ownerId      String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  appointments Appointment[]
-  LaborTask    LaborTask[]
-  Part         Part[]
-  quotations   Quotation[]
-  workOrders   WorkOrder[]
-  owner        User          @relation("UserWorkshop", fields: [ownerId], references: [id])
-}
-
-model VehicleBrand {
-  id        String         @id @default(uuid())
-  name      String         @unique
-  models    VehicleModel[]
-  Vehicle   Vehicle[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-}
-
-model VehicleModel {
-  id             String       @id @default(uuid())
-  name           String
-  vehicleBrandId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  vehicleBrand   VehicleBrand @relation(fields: [vehicleBrandId], references: [id])
-  Vehicle        Vehicle[]
+  id               String             @id @default(uuid())
+  name             String
+  address          String
+  phone            String?
+  email            String             @unique
+  userId           String
+  createdAt        DateTime           @default(now())
+  createdBy        String             @default("admin")
+  updatedAt        DateTime           @updatedAt
+  updatedBy        String             @default("admin")
+  appointments     Appointment[]
+  LaborTask        Labor[]
+  Part             Part[]
+  quotations       Quotation[]
+  workOrders       WorkOrder[]
+  users            User[]
+  QuotationRequest QuotationRequest[]
 }
 
 model Vehicle {
-  id           String       @id @default(uuid())
-  brandId      String
-  modelId      String
-  year         Int
-  licensePlate String       @unique
-  ownerId      String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  quotations   Quotation[]
-  owner        User         @relation(fields: [ownerId], references: [id])
-  brand        VehicleBrand @relation(fields: [brandId], references: [id])
-  model        VehicleModel @relation(fields: [modelId], references: [id])
+  id               String             @id @default(uuid())
+  year             Int
+  licensePlate     String             @unique
+  color            VehicleColor
+  ownerId          String
+  modelId          String
+  createdAt        DateTime           @default(now())
+  createdBy        String             @default("admin")
+  updatedAt        DateTime           @updatedAt
+  updatedBy        String             @default("admin")
+  quotations       Quotation[]
+  owner            User               @relation(fields: [ownerId], references: [id])
+  Model            Model              @relation(fields: [modelId], references: [id])
+  QuotationRequest QuotationRequest[]
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  models    Model[]
+  createdAt DateTime @default(now())
+  createdBy String   @default("admin")
+  updatedAt DateTime @updatedAt
+  updatedBy String   @default("admin")
+}
+
+model Model {
+  id        String    @id @default(uuid())
+  name      String
+  brandId   String
+  createdAt DateTime  @default(now())
+  createdBy String    @default("admin")
+  updatedAt DateTime  @updatedAt
+  updatedBy String    @default("admin")
+  brand     Brand     @relation(fields: [brandId], references: [id])
+  Vehicle   Vehicle[]
+}
+
+model QuotationRequest {
+  id          String                 @id @default(uuid())
+  description String?
+  customerId  String
+  vehicleId   String
+  workshopId  String?
+  status      QuotationRequestStatus
+  createdAt   DateTime               @default(now())
+  createdBy   String                 @default("admin")
+  updatedAt   DateTime               @updatedAt
+  updatedBy   String                 @default("admin")
+  customer    User                   @relation(fields: [customerId], references: [id])
+  vehicle     Vehicle                @relation(fields: [vehicleId], references: [id])
+  workshop    Workshop?              @relation(fields: [workshopId], references: [id])
 }
 
 model Quotation {
@@ -85,7 +114,9 @@ model Quotation {
   total         Float
   estimatedTime Int
   createdAt     DateTime        @default(now())
+  createdBy     String          @default("admin")
   updatedAt     DateTime        @updatedAt
+  updatedBy     String          @default("admin")
   customer      User            @relation(fields: [customerId], references: [id])
   vehicle       Vehicle         @relation(fields: [vehicleId], references: [id])
   workshop      Workshop        @relation(fields: [workshopId], references: [id])
@@ -94,17 +125,20 @@ model Quotation {
 }
 
 model QuotationItem {
-  id          String     @id @default(uuid())
+  id          String            @id @default(uuid())
   quotationId String
   description String
-  type        ItemType
+  type        QuotationItemType
   price       Float
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime          @default(now())
+  createdBy   String            @default("admin")
+  updatedAt   DateTime          @updatedAt
+  updatedBy   String            @default("admin")
   laborTaskId String?
   partId      String
-  laborTask   LaborTask? @relation(fields: [laborTaskId], references: [id])
-  part        Part       @relation(fields: [partId], references: [id])
-  quotation   Quotation  @relation(fields: [quotationId], references: [id])
+  laborTask   Labor?            @relation(fields: [laborTaskId], references: [id])
+  part        Part              @relation(fields: [partId], references: [id])
+  quotation   Quotation         @relation(fields: [quotationId], references: [id])
 }
 
 model WorkOrder {
@@ -114,7 +148,9 @@ model WorkOrder {
   customerId  String
   status      WorkOrderStatus @default(IN_PROGRESS)
   createdAt   DateTime        @default(now())
+  createdBy   String          @default("admin")
   updatedAt   DateTime        @updatedAt
+  updatedBy   String          @default("admin")
   customer    User            @relation(fields: [customerId], references: [id])
   quotation   Quotation       @relation(fields: [quotationId], references: [id])
   workshop    Workshop        @relation(fields: [workshopId], references: [id])
@@ -127,7 +163,9 @@ model Appointment {
   date       DateTime
   status     AppointmentStatus @default(PENDING)
   createdAt  DateTime          @default(now())
+  createdBy  String            @default("admin")
   updatedAt  DateTime          @updatedAt
+  updatedBy  String            @default("admin")
   customer   User              @relation(fields: [customerId], references: [id])
   workshop   Workshop          @relation(fields: [workshopId], references: [id])
 }
@@ -139,6 +177,9 @@ model Notification {
   type      NotificationType
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+  createdBy String           @default("admin")
+  updatedAt DateTime         @updatedAt
+  updatedBy String           @default("admin")
   user      User             @relation(fields: [userId], references: [id])
 }
 
@@ -150,12 +191,14 @@ model Part {
   stock         Int             @default(0)
   workshopId    String
   createdAt     DateTime        @default(now())
+  createdBy     String          @default("admin")
   updatedAt     DateTime        @updatedAt
+  updatedBy     String          @default("admin")
   workshop      Workshop        @relation(fields: [workshopId], references: [id])
   QuotationItem QuotationItem[]
 }
 
-model LaborTask {
+model Labor {
   id             String          @id @default(uuid())
   name           String
   description    String?
@@ -163,20 +206,29 @@ model LaborTask {
   estimatedHours Int
   workshopId     String
   createdAt      DateTime        @default(now())
+  createdBy      String          @default("admin")
   updatedAt      DateTime        @updatedAt
+  updatedBy      String          @default("admin")
   workshop       Workshop        @relation(fields: [workshopId], references: [id])
   QuotationItem  QuotationItem[]
 }
 
-enum Role {
+enum UserRole {
   CUSTOMER
   WORKSHOP
+  ADMIN
 }
 
 enum QuotationStatus {
   PENDING
   ACCEPTED
   REJECTED
+  CANCELED
+}
+
+enum QuotationRequestStatus {
+  ACTIVE
+  CLOSED
   CANCELED
 }
 
@@ -192,7 +244,7 @@ enum AppointmentStatus {
   CANCELED
 }
 
-enum ItemType {
+enum QuotationItemType {
   PART
   LABOR
 }
@@ -201,4 +253,21 @@ enum NotificationType {
   WHATSAPP
   EMAIL
   SYSTEM
+}
+
+enum VehicleColor {
+  WHITE
+  BLACK
+  SILVER
+  GRAY
+  BLUE
+  RED
+  BROWN
+  GREEN
+  BEIGE
+  YELLOW
+  ORANGE
+  PURPLE
+  GOLD
+  OTHER
 }

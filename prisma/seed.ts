@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -47,16 +50,16 @@ const brands = [
 
 async function main() {
   for (const brand of brands) {
-    const createdBrand = await prisma.vehicleBrand.create({
+    const createdBrand = await prisma.brand.create({
       data: {
         name: brand.name,
       },
     });
     for (const model of brand.models) {
-      await prisma.vehicleModel.create({
+      await prisma.model.create({
         data: {
           name: model,
-          vehicleBrandId: createdBrand.id,
+          brandId: createdBrand.id,
         },
       });
     }
