@@ -12,21 +12,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateVehicleBrandDto } from './dto/create-vehicle-brand.dto';
+import { CreateBrandDto } from './dto/create-brand.dto';
 import {
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
-import { UpdateVehicleBrandDto } from './dto/update-vehicle-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
-export class VehicleBrandService {
+export class BrandService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createVehicleBrand: CreateVehicleBrandDto) {
+  async create(createBrand: CreateBrandDto) {
     try {
-      const name = createVehicleBrand.name;
-      const existingBrand = await this.prisma.vehicleBrand.findUnique({
+      const name = createBrand.name;
+      const existingBrand = await this.prisma.brand.findUnique({
         where: {
           name: name,
         },
@@ -40,8 +40,8 @@ export class VehicleBrandService {
         );
       }
 
-      const newBrand = this.prisma.vehicleBrand.create({
-        data: createVehicleBrand,
+      const newBrand = this.prisma.brand.create({
+        data: createBrand,
         select: { id: true },
       });
 
@@ -74,10 +74,13 @@ export class VehicleBrandService {
 
   async findAll() {
     try {
-      const brands = await this.prisma.vehicleBrand.findMany({
+      const brands = await this.prisma.brand.findMany({
         select: {
           id: true,
           name: true,
+        },
+        orderBy: {
+          name: 'asc',
         },
       });
 
@@ -104,7 +107,7 @@ export class VehicleBrandService {
 
   async findOne(id: string) {
     try {
-      const brand = await this.prisma.vehicleBrand.findUnique({
+      const brand = await this.prisma.brand.findUnique({
         where: { id },
         select: {
           id: true,
@@ -144,9 +147,9 @@ export class VehicleBrandService {
     }
   }
 
-  async update(id: string, updateVehicleBrandDto: UpdateVehicleBrandDto) {
+  async update(id: string, updateBrandDto: UpdateBrandDto) {
     try {
-      const brand = await this.prisma.vehicleBrand.findUnique({
+      const brand = await this.prisma.brand.findUnique({
         where: { id },
       });
 
@@ -154,9 +157,9 @@ export class VehicleBrandService {
         throw new NotFoundException(`Brand with ID ${id} not found`);
       }
 
-      const updateBrand = await this.prisma.vehicleBrand.update({
+      const updateBrand = await this.prisma.brand.update({
         where: { id },
-        data: updateVehicleBrandDto,
+        data: updateBrandDto,
         select: {
           id: true,
           name: true,
@@ -184,7 +187,7 @@ export class VehicleBrandService {
   async remove(id: string) {
     try {
       console.log(`Entra en el try del remove`);
-      const brand = await this.prisma.vehicleBrand.delete({
+      const brand = await this.prisma.brand.delete({
         where: { id },
         select: {
           id: true,

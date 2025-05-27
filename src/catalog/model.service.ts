@@ -11,21 +11,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateVehicleModelDto } from './dto/create-vehicle-model.dto';
+import { CreateModelDto } from './dto/create-model.dto';
 import {
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
-import { UpdateVehicleModelDto } from './dto/update-vehicle-model.dto';
+import { UpdateModelDto } from './dto/update-model.dto';
 
 @Injectable()
-export class VehicleModelService {
+export class ModelService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createVehicleModelDto: CreateVehicleModelDto) {
+  async create(createModelDto: CreateModelDto) {
     try {
-      const name = createVehicleModelDto.name;
-      const existingModel = await this.prisma.vehicleModel.findFirst({
+      const name = createModelDto.name;
+      const existingModel = await this.prisma.model.findFirst({
         where: {
           name: name,
         },
@@ -39,8 +39,8 @@ export class VehicleModelService {
         );
       }
 
-      const newModel = this.prisma.vehicleModel.create({
-        data: createVehicleModelDto,
+      const newModel = this.prisma.model.create({
+        data: createModelDto,
         select: { id: true, name: true },
       });
 
@@ -62,11 +62,14 @@ export class VehicleModelService {
 
   async findAll() {
     try {
-      const models = await this.prisma.vehicleModel.findMany({
+      const models = await this.prisma.model.findMany({
         select: {
           id: true,
           name: true,
-          vehicleBrand: true,
+          brand: true,
+        },
+        orderBy: {
+          name: 'asc',
         },
       });
 
@@ -83,12 +86,12 @@ export class VehicleModelService {
 
   async findOne(id: string) {
     try {
-      const model = await this.prisma.vehicleModel.findUnique({
+      const model = await this.prisma.model.findUnique({
         where: { id },
         select: {
           id: true,
           name: true,
-          vehicleBrand: true,
+          brand: true,
         },
       });
 
@@ -112,9 +115,9 @@ export class VehicleModelService {
     }
   }
 
-  async update(id: string, updateVehicleModelDto: UpdateVehicleModelDto) {
+  async update(id: string, updateModelDto: UpdateModelDto) {
     try {
-      const model = await this.prisma.vehicleModel.findUnique({
+      const model = await this.prisma.model.findUnique({
         where: { id },
       });
 
@@ -122,17 +125,19 @@ export class VehicleModelService {
         throw new NotFoundException(`Model with ID ${id} not found`);
       }
 
-      const updateModel = await this.prisma.vehicleModel.update({
+      const updateModel = await this.prisma.model.update({
         where: { id },
-        data: updateVehicleModelDto,
+        data: updateModelDto,
         select: {
           id: true,
           name: true,
-          vehicleBrand: true,
+          brand: true,
           createdAt: true,
           updatedAt: true,
         },
       });
+
+      console.log(`updateModel: ${JSON.stringify(updateModel)}`);
 
       return updateModel;
     } catch (error) {
@@ -152,7 +157,7 @@ export class VehicleModelService {
 
   async remove(id: string) {
     try {
-      const model = await this.prisma.vehicleModel.findUnique({
+      const model = await this.prisma.model.findUnique({
         where: { id },
       });
 
@@ -160,7 +165,7 @@ export class VehicleModelService {
         throw new NotFoundException(`Model with ID ${id} not found`);
       }
 
-      const deleteModel = await this.prisma.vehicleModel.delete({
+      const deleteModel = await this.prisma.model.delete({
         where: { id },
         select: {
           id: true,

@@ -1,8 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateVehicleBrandDto } from './create-vehicle-brand.dto';
+import { CreateBrandDto } from './create-brand.dto';
 import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateVehicleBrandDto extends PartialType(CreateVehicleBrandDto) {
+export class UpdateBrandDto extends PartialType(CreateBrandDto) {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
