@@ -11,21 +11,19 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { VehicleModelService } from './vehicle-model.service';
-import { CreateVehicleModelDto } from './dto/create-vehicle-model.dto';
-import { UpdateVehicleModelDto } from './dto/update-vehicle-model.dto';
+import { ModelService } from './model.service';
+import { CreateModelDto } from './dto/create-model.dto';
+import { UpdateModelDto } from './dto/update-model.dto';
 
-@Controller('vehicleModel')
-@ApiTags('vehicleModel')
-export class VehicleModelController {
-  constructor(private readonly vehicleModelService: VehicleModelService) {}
+@Controller('model')
+@ApiTags('model')
+export class ModelController {
+  constructor(private readonly modelService: ModelService) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new vehicle model ' })
-  async create(@Body() createVehicleModelDto: CreateVehicleModelDto) {
-    const created = await this.vehicleModelService.create(
-      createVehicleModelDto,
-    );
+  async create(@Body() createModelDto: CreateModelDto) {
+    const created = await this.modelService.create(createModelDto);
 
     return {
       status: HttpStatus.CREATED,
@@ -36,7 +34,7 @@ export class VehicleModelController {
 
   @Get()
   async findAll() {
-    const vehicleModels = await this.vehicleModelService.findAll();
+    const vehicleModels = await this.modelService.findAll();
 
     return {
       status: HttpStatus.OK,
@@ -47,7 +45,7 @@ export class VehicleModelController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const vehicleModel = await this.vehicleModelService.findOne(id);
+    const vehicleModel = await this.modelService.findOne(id);
     return {
       status: HttpStatus.OK,
       message: 'Vehicle model obtained successfully',
@@ -58,11 +56,11 @@ export class VehicleModelController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateVehicleModelDto: UpdateVehicleModelDto,
+    @Body() updateModelDto: UpdateModelDto,
   ) {
-    const vehicleModelUpdated = await this.vehicleModelService.update(
+    const vehicleModelUpdated = await this.modelService.update(
       id,
-      updateVehicleModelDto,
+      updateModelDto,
     );
     return {
       status: HttpStatus.OK,
@@ -73,7 +71,7 @@ export class VehicleModelController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const vehicleModelDeleted = await this.vehicleModelService.remove(id);
+    const vehicleModelDeleted = await this.modelService.remove(id);
     return {
       status: HttpStatus.OK,
       message: 'Vehicle model deleted successfully',

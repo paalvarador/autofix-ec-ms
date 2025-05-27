@@ -1,9 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateVehicleModelDto } from './create-vehicle-model.dto';
+import { CreateModelDto } from './create-model.dto';
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateVehicleModelDto extends PartialType(CreateVehicleModelDto) {
+export class UpdateModelDto extends PartialType(CreateModelDto) {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class CreateVehicleModelDto {
+export class CreateModelDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ required: true })
@@ -10,5 +10,5 @@ export class CreateVehicleModelDto {
   @IsUUID()
   @IsNotEmpty()
   @ApiProperty({ required: true })
-  vehicleBrandId: string;
+  brandId: string;
 }

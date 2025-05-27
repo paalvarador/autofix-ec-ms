@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, User } from '@prisma/client';
+import { UserRole, User } from '@prisma/client';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
@@ -20,11 +20,23 @@ export class UserEntity implements UserWithoutPassword {
   lastName: string;
 
   @ApiProperty()
-  role: Role = 'CUSTOMER';
+  role: UserRole = 'CUSTOMER';
 
   @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  workshopId: string | null;
+
+  @ApiProperty()
+  createdBy: string;
+
+  @ApiProperty()
+  updatedBy: string;
+
+  @ApiProperty()
+  workshopsId: string | null;
 }
