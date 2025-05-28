@@ -8,12 +8,9 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
 interface JwtPayload {
-<<<<<<< Updated upstream
-=======
   id: string;
   firstName: string;
   lastName: string;
->>>>>>> Stashed changes
   role: string;
   email: string;
   exp: number;
@@ -68,9 +65,6 @@ export class AuthService {
     });
   }
 
-<<<<<<< Updated upstream
-  decodeToken(token: string): { role: string; email: string; exp: number } {
-=======
   decodeToken(token: string): {
     id: string;
     firstName: string;
@@ -79,7 +73,6 @@ export class AuthService {
     email: string;
     exp: number;
   } {
->>>>>>> Stashed changes
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not defined');
@@ -88,12 +81,9 @@ export class AuthService {
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     return {
-<<<<<<< Updated upstream
-=======
       id: decoded.id,
       firstName: decoded.firstName,
       lastName: decoded.lastName,
->>>>>>> Stashed changes
       role: decoded.role,
       email: decoded.email,
       exp: decoded.exp,
