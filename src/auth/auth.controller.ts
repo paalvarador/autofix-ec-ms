@@ -26,7 +26,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const userToken = await this.authService.loginUser(data, res);
-    console.log(`userToken: ${userToken?.token}`);
+    console.log(`userToken: ${userToken}`);
 
     if (!userToken) {
       throw new HttpException(
