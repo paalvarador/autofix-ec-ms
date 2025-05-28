@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   HttpStatus,
+  NotFoundException,
   Post,
   Req,
   Res,
@@ -28,17 +28,14 @@ export class AuthController {
     const userToken = await this.authService.loginUser(data, res);
     console.log(`userToken: ${userToken}`);
 
-    if (!userToken) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found or invalid credentials',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    if (!userToken)
+      throw new NotFoundException('User not found or invalid credentials');
 
-    return res.status(200).json({ message: 'Login successfull' });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Login Successfully',
+      data: userToken,
+    };
   }
 
   @Get('me')
