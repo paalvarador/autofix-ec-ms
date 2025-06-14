@@ -8,7 +8,12 @@ export class QuotationService {
 
   async create(createQuotation: CreateQuotationDto) {
     try {
-      console.log(`Aqui vamos a hacer el guardado de la informacion`);
+      const quotation = this.prisma.quotation.create({
+        data: createQuotation,
+        select: { id: true },
+      });
+
+      return quotation;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
