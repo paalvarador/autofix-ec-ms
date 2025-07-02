@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   BadRequestException,
   ConflictException,
@@ -11,12 +7,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateBrandDto } from './dto/create-brand.dto';
 import {
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
@@ -168,7 +164,7 @@ export class BrandService {
         },
       });
 
-      console.log(`updatedBrand: ${updateBrand}`);
+      console.log(`updatedBrand: ${JSON.stringify(updateBrand)}`);
 
       return updateBrand;
     } catch (error) {

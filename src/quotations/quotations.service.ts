@@ -1,8 +1,8 @@
 import {
-    HttpException,
-    HttpStatus,
-    Injectable,
-    NotFoundException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from 'src/prisma/prisma.service';
