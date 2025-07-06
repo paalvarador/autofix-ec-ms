@@ -8,7 +8,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { UpdateQuotationDto } from './dto/update-quotation.dto';
@@ -21,34 +27,189 @@ export class QuotationsController {
 
   @Post('create')
   @ApiOperation({ summary: 'Create anew Quotation' })
-  async create(@Body() CreateQuotationDto: CreateQuotationDto) {
-    console.log(
-      `Aqui vamos a crear una nueva cotizaciön con los siugientes datos: ${JSON.stringify(CreateQuotationDto)}`,
-    );
+  @ApiCreatedResponse({
+    description: 'Quotation successfully created',
+    schema: {
+      example: {
+        statusCode: 200,
+        message: 'Quotation created successfully',
+        quotation: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Bad request - Missing or invalid fields',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid Quotation 5',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
+  async create(@Body() createQuotationDto: CreateQuotationDto) {
+    const quotation = await this.quotationsService.create(createQuotationDto);
+
+    return {
+      message: 'Quotation created successfully',
+      quotation,
+    };
   }
 
   @Get()
+  @ApiOperation({ summary: 'Find a list of quotations ' })
+  @ApiCreatedResponse({
+    description: 'Quotations found successfully',
+    schema: {
+      example: {
+        message: 'Quotations found successfully',
+        quotation: [
+          {
+            id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        messsage: 'Something went wrong, please try again later',
+      },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   async findAll() {
-    console.log(`Controlador para obtener todas las cotizaciones`);
+    return await this.quotationsService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Find a quotation by id' })
+  @ApiCreatedResponse({
+    description: 'Quotation found successfully',
+    schema: {
+      example: {
+        message: 'Quotation found successfully',
+        quotation: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Quotation not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message:
+          'Quotation with ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   async findOne(@Param('id') id: string) {
-    console.log('Controlador para obtener una cotizacion en especifico');
+    return this.quotationsService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a quotation by Id' })
+  @ApiCreatedResponse({
+    description: 'Quotation updated successfully',
+    schema: {
+      example: {
+        message: 'Quotation updated successfully',
+        user: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Quotation not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message:
+          'Quotation with ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something wen wrong, please try again later',
+      },
+    },
+  })
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateQuotationDto: UpdateQuotationDto,
   ) {
-    console.log('Controlador par aactualiar una cotizacion');
+    return this.quotationsService.update(id, updateQuotationDto);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a quotation by Id ' })
+  @ApiCreatedResponse({
+    description: 'Quotation deleted successfully',
+    schema: {
+      example: {
+        message: 'Quotation deleted successfully',
+        quotation: {
+          id: '1d95a1ba-fa4a-4e79-926b-df28cb571d6e',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Quotation not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: `Quotation with ID 1d95a1ba-fa4a-4e79-926b-df28cb571d6e not found`,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - Unexpected server error',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Something went wrong, please try again later',
+      },
+    },
+  })
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id') id: string) {
-    console.log('Controlador para eliminar una cotiación');
+    return this.quotationsService.remove(id);
   }
 }
