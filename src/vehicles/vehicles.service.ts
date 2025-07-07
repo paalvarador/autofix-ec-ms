@@ -4,23 +4,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
+import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateQuotationDto } from './dto/create-quotation.dto';
-import { UpdateQuotationDto } from './dto/update-quotation.dto';
+import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
-export class QuotationService {
+export class VehiclesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createQuotation: CreateQuotationDto) {
+  async create(createVehicleDto: CreateVehicleDto) {
     try {
-      const quotation = this.prisma.quotation.create({
-        data: createQuotation,
+      const vehicle = this.prisma.vehicle.create({
+        data: createVehicleDto,
         select: { id: true },
       });
 
-      return quotation;
+      return vehicle;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -28,8 +28,8 @@ export class QuotationService {
 
       throw new HttpException(
         {
-          StatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'An unexpected error oCcurred.',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An unexpected error occurred.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -38,18 +38,17 @@ export class QuotationService {
 
   async findAll() {
     try {
-      const quotations = await this.prisma.quotation.findMany({
+      const vehicles = await this.prisma.vehicle.findMany({
         select: {
           id: true,
-          customerId: true,
-          estimatedTime: true,
+          licensePlate: true,
         },
         orderBy: {
           id: 'asc',
         },
       });
 
-      return quotations;
+      return vehicles;
     } catch (error) {
       if (error instanceof PrismaClientUnknownRequestError) {
         throw new HttpException(
@@ -72,19 +71,19 @@ export class QuotationService {
 
   async findOne(id: string) {
     try {
-      const quotation = await this.prisma.quotation.findUnique({
+      const vehicle = await this.prisma.vehicle.findUnique({
         where: { id },
         select: {
           id: true,
-          customerId: true,
-          estimatedTime: true,
+          licensePlate: true,
         },
       });
 
-      if (!quotation)
-        throw new NotFoundException(`Quotation with ID ${id} not found`);
+      if (!vehicle) {
+        throw new NotFoundException(`Vehicle with ID ${id} not found`);
+      }
 
-      return quotation;
+      return vehicle;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -110,33 +109,32 @@ export class QuotationService {
     }
   }
 
-  async update(id: string, updateQuotationDto: UpdateQuotationDto) {
+  async update(id: string, updateVehicleDto: UpdateVehicleDto) {
     try {
-      // Verificar si la cotizacion existe
-      const quotation = await this.prisma.quotation.findUnique({
+      // Verificamos si el vehiculo existe
+      const vehicle = await this.prisma.vehicle.findUnique({
         where: { id },
       });
 
-      if (!quotation) {
+      if (!vehicle) {
         throw new HttpException(
           {
             statusCode: HttpStatus.NOT_FOUND,
-            message: `Quotation with ID ${id} not found`,
+            message: `Vehicle with ID ${id} not found`,
           },
           HttpStatus.NOT_FOUND,
         );
       }
 
-      // Realizamos la actualizacion
-      const updateQuotation = await this.prisma.quotation.update({
+      const updateVehicle = await this.prisma.vehicle.update({
         where: { id },
-        data: updateQuotationDto,
+        data: updateVehicleDto,
         select: {
           id: true,
         },
       });
 
-      return updateQuotation;
+      return updateVehicle;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -154,26 +152,25 @@ export class QuotationService {
 
   async remove(id: string) {
     try {
-      // Intentamos eliminar la cotizacion
-      const quotation = await this.prisma.quotation.delete({
+      // Intentamos eliminar el vehiculo
+      const vehicle = await this.prisma.vehicle.delete({
         where: { id },
         select: {
           id: true,
         },
       });
 
-      // Si no se encuentra la cotizacion, se lanza un error 404
-      if (!quotation) {
+      if (!vehicle) {
         throw new HttpException(
           {
             statusCode: HttpStatus.NOT_FOUND,
-            message: `Quotation with id ${id} not found`,
+            message: `Vehicle with id ${id} not found`,
           },
           HttpStatus.NOT_FOUND,
         );
       }
 
-      return { message: 'Quotation deleted successfully', ...quotation };
+      return { message: 'Vehicle deleted successfully', ...vehicle };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CatalogModule } from './catalog/catalog.module';
 import { QuotationsModule } from './quotations/quotations.module';
 import { GrowthbookService } from './growthbook/growthbook.service';
+import { VehiclesModule } from './vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { GrowthbookService } from './growthbook/growthbook.service';
     AuthModule,
     QuotationsModule,
     CatalogModule,
+    VehiclesModule,
   ],
   controllers: [],
   providers: [GrowthbookService],
