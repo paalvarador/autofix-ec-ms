@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -14,6 +15,26 @@ export class VehiclesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createVehicleDto: CreateVehicleDto) {
+    const { ownerId, modelId } = createVehicleDto;
+
+    // Verificar si el owner (usuario) existe
+    const owner = await this.prisma.user.findUnique({ where: { id: ownerId } });
+    if (!owner) {
+      throw new BadRequestException(
+        `The user with ID ${ownerId} does not exist`,
+      );
+    }
+
+    // Verificar si el modelo del vehiculo existe
+    const model = await this.prisma.model.findUnique({
+      where: { id: modelId },
+    });
+    if (!model) {
+      throw new BadRequestException(
+        `The model with ID ${modelId} does not exist`,
+      );
+    }
+
     try {
       const vehicle = this.prisma.vehicle.create({
         data: createVehicleDto,
@@ -22,14 +43,20 @@ export class VehiclesService {
 
       return vehicle;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
+      if (error instanceof PrismaClientUnknownRequestError) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `Database error: ${error.message}`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'An unexpected error occurred.',
+          message: `An unexpected error occurred ${error}`,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
