@@ -8,6 +8,7 @@ import { QuotationsModule } from './quotations/quotations.module';
 import { GrowthbookService } from './growthbook/growthbook.service';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { PartsModule } from './parts/parts.module';
+import { LaborsModule } from './labors/labors.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PartsModule } from './parts/parts.module';
     CatalogModule,
     VehiclesModule,
     PartsModule,
+    LaborsModule,
   ],
   controllers: [],
   providers: [GrowthbookService],
