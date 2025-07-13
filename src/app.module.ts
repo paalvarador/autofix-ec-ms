@@ -9,6 +9,12 @@ import { GrowthbookService } from './growthbook/growthbook.service';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { PartsModule } from './parts/parts.module';
 import { LaborsModule } from './labors/labors.module';
+import { WorkshopsModule } from './workshops/workshops.module';
+import { QuotationRequestsModule } from './quotation-requests/quotation-requests.module';
+import { WorkOrdersModule } from './work-orders/work-orders.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { QuotationItemsModule } from './quotation-items/quotation-items.module';
 
 @Module({
   imports: [
@@ -21,6 +27,12 @@ import { LaborsModule } from './labors/labors.module';
     VehiclesModule,
     PartsModule,
     LaborsModule,
+    WorkshopsModule,
+    QuotationRequestsModule,
+    WorkOrdersModule,
+    AppointmentsModule,
+    NotificationsModule,
+    QuotationItemsModule,
   ],
   controllers: [],
   providers: [GrowthbookService],
