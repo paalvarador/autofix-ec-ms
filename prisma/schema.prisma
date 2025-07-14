@@ -8,26 +8,46 @@ datasource db {
 }
 
 model User {
-  id               String             @id @default(uuid())
-  firstName        String
-  lastName         String
-  email            String             @unique
-  phone            String?
-  password         String
-  role             UserRole
-  workshopId       String?
-  createdAt        DateTime           @default(now())
-  createdBy        String             @default("admin")
-  updatedAt        DateTime           @updatedAt
-  updatedBy        String             @default("admin")
-  appointments     Appointment[]
-  Notification     Notification[]
-  quotations       Quotation[]
-  Vehicle          Vehicle[]
-  WorkOrder        WorkOrder[]
-  workshopsId      String?
-  Workshop         Workshop?          @relation(fields: [workshopId], references: [id])
-  QuotationRequest QuotationRequest[]
+  id                    String             @id @default(uuid())
+  firstName             String
+  lastName              String
+  email                 String             @unique
+  phone                 String?
+  password              String
+  role                  UserRole
+  workshopId            String?
+  resetPasswordToken    String?            @unique
+  resetPasswordExpires  DateTime?
+  createdAt             DateTime           @default(now())
+  createdBy             String             @default("admin")
+  updatedAt             DateTime           @updatedAt
+  updatedBy             String             @default("admin")
+  appointments          Appointment[]
+  Notification          Notification[]
+  quotations            Quotation[]
+  Vehicle               Vehicle[]
+  WorkOrder             WorkOrder[]
+  workshopsId           String?
+  Workshop              Workshop?          @relation(fields: [workshopId], references: [id])
+  QuotationRequest      QuotationRequest[]
+  refreshTokens         RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isRevoked Boolean  @default(false)
+  deviceId  String?  // Para identificar el dispositivo/sesión
+  userAgent String?  // Para tracking de sesiones
+  ipAddress String?  // Para seguridad adicional
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
 
 model Workshop {

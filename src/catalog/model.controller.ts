@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Body,
   Controller,
@@ -10,18 +8,25 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ModelService } from './model.service';
 import { CreateModelDto } from './dto/create-model.dto';
 import { UpdateModelDto } from './dto/update-model.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
+import { UserRole } from '@prisma/client';
 
 @Controller('model')
 @ApiTags('model')
+@ApiBearerAuth()
 export class ModelController {
   constructor(private readonly modelService: ModelService) {}
 
-  @Post('create')
-  @ApiOperation({ summary: 'Create a new vehicle model ' })
+  @Post()
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Crear un nuevo modelo de vehículo' })
+  @ApiResponse({ status: 201, description: 'Modelo creado exitosamente' })
+  @ApiResponse({ status: 403, description: 'Solo administradores pueden crear modelos' })
   async create(@Body() createModelDto: CreateModelDto) {
     const created = await this.modelService.create(createModelDto);
 
@@ -32,7 +37,10 @@ export class ModelController {
     };
   }
 
+  @Public()
   @Get()
+  @ApiOperation({ summary: 'Obtener todos los modelos de vehículos' })
+  @ApiResponse({ status: 200, description: 'Lista de modelos obtenida exitosamente' })
   async findAll() {
     const vehicleModels = await this.modelService.findAll();
 
@@ -43,7 +51,11 @@ export class ModelController {
     };
   }
 
+  @Public()
   @Get(':id')
+  @ApiOperation({ summary: 'Obtener un modelo por ID' })
+  @ApiResponse({ status: 200, description: 'Modelo encontrado' })
+  @ApiResponse({ status: 404, description: 'Modelo no encontrado' })
   async findOne(@Param('id') id: string) {
     const vehicleModel = await this.modelService.findOne(id);
     return {
@@ -54,6 +66,11 @@ export class ModelController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Actualizar un modelo' })
+  @ApiResponse({ status: 200, description: 'Modelo actualizado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Modelo no encontrado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores pueden actualizar modelos' })
   async update(
     @Param('id') id: string,
     @Body() updateModelDto: UpdateModelDto,
@@ -70,6 +87,11 @@ export class ModelController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Eliminar un modelo' })
+  @ApiResponse({ status: 200, description: 'Modelo eliminado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Modelo no encontrado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores pueden eliminar modelos' })
   async remove(@Param('id') id: string) {
     const vehicleModelDeleted = await this.modelService.remove(id);
     return {
