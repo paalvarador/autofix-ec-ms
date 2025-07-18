@@ -22,6 +22,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { Request, Response } from 'express';
+import * as process from 'node:process';
 
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;

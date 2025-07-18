@@ -10,19 +10,19 @@ export class TokenCleanupTask {
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async handleTokenCleanup() {
-    this.logger.log('Iniciando limpieza de tokens expirados...');
-    
+    this.logger.log('Starting cleanup of expired tokens...');
+
     try {
       await this.refreshTokenService.cleanupExpiredTokens();
-      this.logger.log('Limpieza de tokens completada exitosamente');
+      this.logger.log('Token cleanup completed successfully');
     } catch (error) {
-      this.logger.error('Error durante la limpieza de tokens:', error);
+      this.logger.error('Error during token cleanup:', error);
     }
   }
 
-  // Método manual para testing
+  // Manual method for testing
   async manualCleanup() {
-    this.logger.log('Limpieza manual de tokens iniciada...');
+    this.logger.log('Manual token cleanup initiated...');
     await this.refreshTokenService.cleanupExpiredTokens();
   }
 }

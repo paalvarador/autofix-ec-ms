@@ -11,7 +11,7 @@ export class UserEntity implements UserWithoutPassword {
   email: string;
 
   @ApiProperty()
-  phone: string;
+  phone: string | null;
 
   @ApiProperty()
   firstName: string;
@@ -39,4 +39,10 @@ export class UserEntity implements UserWithoutPassword {
 
   @ApiProperty()
   workshopsId: string | null;
+
+  @ApiProperty()
+  resetPasswordToken: string | null;
+
+  @ApiProperty()
+  resetPasswordExpires: Date | null;
 }
